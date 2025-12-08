@@ -11,7 +11,10 @@
       "Bash(find:*)",
       "Bash(ls:*)",
       "Bash(npx shadcn@latest add dropdown-menu)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npm view:*)",
+      "Bash(pnpm remove:*)",
+      "Bash(pnpm add:*)"
     ],
     "deny": [],
     "ask": []

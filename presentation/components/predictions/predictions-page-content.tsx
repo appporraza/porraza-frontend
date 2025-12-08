@@ -91,7 +91,6 @@ export function PredictionsPageContent({
     (m) => m.userPrediction.id !== null
   ).length;
 
-
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -153,10 +152,12 @@ export function PredictionsPageContent({
                   return (
                     <div className="rounded-xl border bg-card p-12 text-center">
                       <Lock className="mx-auto mb-4 size-12 text-muted-foreground" />
-                      <h3 className="mb-2 text-lg font-semibold">Eliminatorias</h3>
+                      <h3 className="mb-2 text-lg font-semibold">
+                        Eliminatorias
+                      </h3>
                       <p className="mb-4 text-sm text-muted-foreground">
-                        Completa todas las predicciones de la fase de grupos para
-                        desbloquear las eliminatorias.
+                        Completa todas las predicciones de la fase de grupos
+                        para desbloquear las eliminatorias.
                       </p>
                       <p className="text-xs font-semibold text-foreground">
                         Progreso: {completedMatches}/{totalMatches} predicciones
@@ -165,7 +166,11 @@ export function PredictionsPageContent({
                   );
                 }
 
-                if (knockouts && knockouts.roundOf32 && knockouts.roundOf32.length > 0) {
+                if (
+                  knockouts &&
+                  knockouts.roundOf32 &&
+                  knockouts.roundOf32.length > 0
+                ) {
                   return (
                     <KnockoutBracket
                       matches={roundOf32Matches || []}
@@ -180,7 +185,9 @@ export function PredictionsPageContent({
                 return (
                   <div className="rounded-xl border bg-card p-12 text-center">
                     <Lock className="mx-auto mb-4 size-12 text-secondary" />
-                    <h3 className="mb-2 text-lg font-semibold">Eliminatorias</h3>
+                    <h3 className="mb-2 text-lg font-semibold">
+                      Eliminatorias
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       Los emparejamientos de 16avos de final se mostrarán cuando
                       se completen todos los grupos.

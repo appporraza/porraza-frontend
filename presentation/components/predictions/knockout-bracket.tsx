@@ -3,10 +3,10 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   SingleEliminationBracket,
-  Match,
   createTheme,
-} from "@g-loot/react-tournament-brackets";
-import type { MatchComponentProps } from "@g-loot/react-tournament-brackets/dist/types";
+  type MatchComponentProps,
+  type MatchType,
+} from "react-tournament-brackets";
 import { Info, Trophy, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/presentation/components/ui/badge";
 import { TeamFlag } from "@/presentation/components/ui/team-flag";
@@ -30,7 +30,10 @@ interface KnockoutBracketProps {
   matches: RoundOf32Match[];
   knockouts: Knockouts | null;
   predictionId: string | null;
-  onSave: (phase: MatchPhase, matchPredictions: MatchPrediction[]) => Promise<void>;
+  onSave: (
+    phase: MatchPhase,
+    matchPredictions: MatchPrediction[]
+  ) => Promise<void>;
   isSaving: boolean;
 }
 
@@ -50,10 +53,7 @@ function getMatchWinner(
   }
 
   // 2. Si hay scores de extra time, comparar ET
-  if (
-    prediction.homeScoreET !== null &&
-    prediction.awayScoreET !== null
-  ) {
+  if (prediction.homeScoreET !== null && prediction.awayScoreET !== null) {
     if (prediction.homeScoreET > prediction.awayScoreET) return "home";
     if (prediction.awayScoreET > prediction.homeScoreET) return "away";
     // Si ET está empatado y no hay penaltiesWinner, es draw (no debería pasar)
@@ -69,17 +69,21 @@ function getMatchWinner(
 }
 
 /**
- * Porraza Custom Theme for @g-loot/react-tournament-brackets
+ * Porraza Custom Theme for react-tournament-brackets
  * Matches the brand colors:
  * - Primary: #2a398d
  * - Secondary: #3cac3b
  * - Destructive: #e61d25
  */
 const PorrazaTheme = createTheme({
+  fontFamily: "Poppins, sans-serif",
+  transitionTimingFunction: "ease-in-out",
+  disabledColor: "#cbd5e1",
   textColor: {
     main: "#0f172a",
     highlighted: "#2a398d", // Primary blue
     dark: "#64748b",
+    disabled: "#cbd5e1",
   },
   matchBackground: {
     wonColor: "#d1fae5", // Light green tint (secondary)
@@ -99,13 +103,10 @@ const PorrazaTheme = createTheme({
     color: "#cbd5e1",
     highlightedColor: "#2a398d", // Primary blue for highlights
   },
-  roundHeader: {
-    backgroundColor: "#2a398d", // Primary blue headers
-    fontColor: "#ffffff",
+  roundHeaders: {
+    background: "#2a398d", // Primary blue headers
   },
-  connectorColor: "#9ca9d9", // Primary blue with opacity
-  connectorColorHighlight: "#3cac3b", // Secondary green on highlight
-  svgBackground: "#fafafa",
+  canvasBackground: "#fafafa",
 });
 
 /**
@@ -158,7 +159,17 @@ function CustomMatch({
         // Mobile: 88px for better touch target, Desktop: 72px
         minHeight: "88px",
       }}
-      onClick={() => onMatchClick?.({ match })}
+      onClick={(event: React.MouseEvent<HTMLDivElement>) =>
+        onMatchClick?.({
+          match,
+          topWon: homeWon,
+          bottomWon: awayWon,
+          event: event as unknown as React.MouseEvent<
+            HTMLAnchorElement,
+            MouseEvent
+          >,
+        })
+      }
       className={cn(
         // Base styles - simplified gradient for mobile performance
         "group relative cursor-pointer rounded-lg",
@@ -221,15 +232,17 @@ function CustomMatch({
           {topText || topParty.name || teamNameFallback}
         </span>
         {/* Winner icon */}
-        {homeWon && (
-          <CheckCircle2 className="size-4 shrink-0 text-secondary" />
-        )}
+        {homeWon && <CheckCircle2 className="size-4 shrink-0 text-secondary" />}
         {/* Score badge */}
         {userPrediction && (
-          <span className={cn(
-            "rounded-md px-2 py-1 text-xs font-bold shadow-sm md:py-0.5",
-            homeWon ? "bg-secondary text-white" : "bg-muted text-muted-foreground"
-          )}>
+          <span
+            className={cn(
+              "rounded-md px-2 py-1 text-xs font-bold shadow-sm md:py-0.5",
+              homeWon
+                ? "bg-secondary text-white"
+                : "bg-muted text-muted-foreground"
+            )}
+          >
             {userPrediction.homeScore}
           </span>
         )}
@@ -273,15 +286,17 @@ function CustomMatch({
           {bottomText || bottomParty.name || teamNameFallback}
         </span>
         {/* Winner icon */}
-        {awayWon && (
-          <CheckCircle2 className="size-4 shrink-0 text-secondary" />
-        )}
+        {awayWon && <CheckCircle2 className="size-4 shrink-0 text-secondary" />}
         {/* Score badge */}
         {userPrediction && (
-          <span className={cn(
-            "rounded-md px-2 py-1 text-xs font-bold shadow-sm md:py-0.5",
-            awayWon ? "bg-secondary text-white" : "bg-muted text-muted-foreground"
-          )}>
+          <span
+            className={cn(
+              "rounded-md px-2 py-1 text-xs font-bold shadow-sm md:py-0.5",
+              awayWon
+                ? "bg-secondary text-white"
+                : "bg-muted text-muted-foreground"
+            )}
+          >
             {userPrediction.awayScore}
           </span>
         )}
@@ -404,7 +419,7 @@ export function KnockoutBracket({
   const tournamentMatchMap = useMemo(() => {
     if (!knockouts) return new Map();
 
-    const map = new Map<number, typeof knockouts.roundOf32[0]>();
+    const map = new Map<number, (typeof knockouts.roundOf32)[0]>();
 
     // Round of 32: tournament IDs 1-16
     knockouts.roundOf32.forEach((match, index) => {
@@ -445,7 +460,7 @@ export function KnockoutBracket({
   };
 
   // Handle match click to open dialog
-  const handleMatchClick = (args: { match: Match }) => {
+  const handleMatchClick = (args: { match: MatchType }) => {
     const tournamentMatchId = Number(args.match.id);
     const knockoutMatch = tournamentMatchMap.get(tournamentMatchId);
 
@@ -532,14 +547,13 @@ export function KnockoutBracket({
               options={{
                 style: {
                   roundHeader: {
-                    backgroundColor: PorrazaTheme.roundHeader.backgroundColor,
-                    fontColor: PorrazaTheme.roundHeader.fontColor,
+                    backgroundColor: "#2a398d",
+                    fontColor: "#ffffff",
                     fontFamily: "Poppins, sans-serif",
                     fontSize: 14,
-                    fontWeight: 600,
                   },
-                  connectorColor: PorrazaTheme.connectorColor,
-                  connectorColorHighlight: PorrazaTheme.connectorColorHighlight,
+                  connectorColor: "#9ca9d9",
+                  connectorColorHighlight: "#3cac3b",
                 },
               }}
               onMatchClick={handleMatchClick}
