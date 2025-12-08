@@ -49,7 +49,7 @@ function isUserAuthenticated(request: NextRequest): boolean {
 // Crear middleware de i18n
 const handleI18nRouting = createIntlMiddleware(routing);
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // PASO 1: Aplicar routing de i18n primero
