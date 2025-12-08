@@ -331,6 +331,52 @@ export function KnockoutBracket({
     useState<UserMatchPrediction | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Responsive dimensions for mobile optimization
+  const [windowWidth, setWindowWidth] = useState(0);
+
+  useEffect(() => {
+    // Initialize window width on mount
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    // Set initial value
+    handleResize();
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Calculate responsive bracket dimensions
+  const bracketConfig = useMemo(() => {
+    const isMobile = windowWidth > 0 && windowWidth < 768;
+    const isTablet = windowWidth >= 768 && windowWidth < 1024;
+
+    return {
+      // Box dimensions (match container height)
+      boxHeight: isMobile ? 100 : isTablet ? 105 : 100,
+
+      // Spacing between columns (rounds)
+      spaceBetweenColumns: isMobile ? 60 : isTablet ? 75 : 80,
+
+      // Spacing between rows (matches)
+      spaceBetweenRows: isMobile ? 15 : isTablet ? 20 : 25,
+
+      // Canvas padding
+      canvasPadding: isMobile ? 20 : isTablet ? 30 : 40,
+
+      // Round header
+      roundHeader: {
+        fontSize: isMobile ? 12 : 14,
+        height: isMobile ? 30 : 40,
+        marginBottom: isMobile ? 15 : 20,
+      },
+    };
+  }, [windowWidth]);
+
   // Create a map of predictions by matchId for quick lookup
   // Extract predictions from all knockout rounds (progressive resolution)
   const predictionsMap = useMemo(() => {
@@ -546,12 +592,24 @@ export function KnockoutBracket({
               theme={PorrazaTheme}
               options={{
                 style: {
+                  // Responsive box dimensions
+                  boxHeight: bracketConfig.boxHeight,
+                  spaceBetweenColumns: bracketConfig.spaceBetweenColumns,
+                  spaceBetweenRows: bracketConfig.spaceBetweenRows,
+                  canvasPadding: bracketConfig.canvasPadding,
+
+                  // Round header configuration
                   roundHeader: {
                     backgroundColor: "#2a398d",
                     fontColor: "#ffffff",
                     fontFamily: "Poppins, sans-serif",
-                    fontSize: 14,
+                    fontSize: bracketConfig.roundHeader.fontSize,
+                    height: bracketConfig.roundHeader.height,
+                    marginBottom: bracketConfig.roundHeader.marginBottom,
+                    isShown: true,
                   },
+
+                  // Connector colors
                   connectorColor: "#9ca9d9",
                   connectorColorHighlight: "#3cac3b",
                 },
