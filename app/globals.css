@@ -389,6 +389,106 @@
       }
     }
   }
+
+  /* ========================================
+   * iOS Safari Specific Fixes
+   * Targets iOS devices using -webkit-touch-callout
+   * ======================================== */
+  @supports (-webkit-touch-callout: none) {
+    /* Force hardware acceleration for SVG container */
+    .bracket svg {
+      -webkit-transform: translateZ(0);
+      -webkit-perspective: 1000;
+      -webkit-backface-visibility: hidden;
+      transform: translateZ(0);
+      perspective: 1000px;
+      backface-visibility: hidden;
+      will-change: transform;
+    }
+
+    /* Fix SVG path rendering issues in iOS */
+    svg path[stroke] {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      shape-rendering: geometricPrecision;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    /* Fix foreignObject rendering in iOS Safari */
+    svg foreignObject {
+      -webkit-transform: translateZ(0);
+      -webkit-font-smoothing: antialiased;
+      transform: translateZ(0);
+      will-change: transform;
+    }
+
+    /* Ensure SVG elements are properly layered */
+    svg rect {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
+
+    /* Improve text rendering in SVG on iOS */
+    svg text {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    /* Fix scroll performance in iOS */
+    .bracket {
+      -webkit-overflow-scrolling: touch;
+      overflow-scrolling: touch;
+    }
+
+    /* Disable iOS momentum scrolling issues with SVG */
+    [data-radix-scroll-area-viewport] {
+      -webkit-overflow-scrolling: touch;
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
+    }
+
+    /* Fix iOS Safari gradient rendering */
+    svg linearGradient,
+    svg radialGradient {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
+
+    /* Prevent iOS Safari from auto-zooming on input/interaction */
+    svg * {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      touch-callout: none;
+    }
+
+    /* Fix match card containers in iOS */
+    svg foreignObject > div {
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ensure proper layering and compositing */
+    svg g {
+      isolation: isolate;
+    }
+
+    /* Fix potential z-index issues in iOS */
+    .bracket svg > * {
+      position: relative;
+    }
+
+    /* Improve performance by isolating paint */
+    svg foreignObject,
+    svg path,
+    svg rect {
+      contain: layout style paint;
+    }
+  }
 }
 
 .dark {

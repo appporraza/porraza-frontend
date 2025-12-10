@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  // Transpile react-tournament-brackets for better iOS Safari compatibility
+  transpilePackages: ["react-tournament-brackets"],
 };
 
 // Envolver la configuración con el plugin de next-intl

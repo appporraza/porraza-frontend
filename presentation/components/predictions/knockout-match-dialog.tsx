@@ -4,7 +4,14 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale } from "next-intl";
-import { MapPin, Calendar, Clock, Users, Trophy, CheckCircle2 } from "lucide-react";
+import {
+  MapPin,
+  Calendar,
+  Clock,
+  Users,
+  Trophy,
+  CheckCircle2,
+} from "lucide-react";
 import { Badge } from "@/presentation/components/ui/badge";
 import { TeamFlag } from "@/presentation/components/ui/team-flag";
 import {
@@ -37,7 +44,11 @@ import {
   knockoutMatchPredictionSchema,
   type KnockoutMatchPredictionFormData,
 } from "@/presentation/schemas/knockout-prediction-schema";
-import { formatFullDate, formatTime, formatCapacity } from "@/presentation/utils/formatters";
+import {
+  formatFullDate,
+  formatTime,
+  formatCapacity,
+} from "@/presentation/utils/formatters";
 
 interface KnockoutMatchDialogProps {
   match: RoundOf32Match;
@@ -45,7 +56,10 @@ interface KnockoutMatchDialogProps {
   isOpen: boolean;
   onClose: () => void;
   predictionId: string | null;
-  onSave: (phase: MatchPhase, matchPredictions: MatchPrediction[]) => Promise<void>;
+  onSave: (
+    phase: MatchPhase,
+    matchPredictions: MatchPrediction[]
+  ) => Promise<void>;
   isSaving: boolean;
 }
 
@@ -58,7 +72,10 @@ interface MatchContentProps {
   userPrediction: UserMatchPrediction | null;
   onClose: () => void;
   predictionId: string | null;
-  onSave: (phase: MatchPhase, matchPredictions: MatchPrediction[]) => Promise<void>;
+  onSave: (
+    phase: MatchPhase,
+    matchPredictions: MatchPrediction[]
+  ) => Promise<void>;
   isSaving: boolean;
   className?: string;
 }
@@ -186,7 +203,11 @@ function MatchContent({
     // Rule 5: If NOT tied in regular time, ET/penalties should be null
     // This catches cases where user had entered ET/penalties but then changed regular time
     if (!isTied) {
-      if (homeScoreET !== null || awayScoreET !== null || penaltiesWinner !== null) {
+      if (
+        homeScoreET !== null ||
+        awayScoreET !== null ||
+        penaltiesWinner !== null
+      ) {
         return true;
       }
     }
@@ -206,7 +227,8 @@ function MatchContent({
   const onSubmit = async (data: KnockoutMatchPredictionFormData) => {
     if (!predictionId) {
       toast.error("Error", {
-        description: "No se encontró la predicción. Intenta recargar la página.",
+        description:
+          "No se encontró la predicción. Intenta recargar la página.",
       });
       return;
     }
@@ -279,7 +301,9 @@ function MatchContent({
         <div className="flex items-center gap-2 rounded-lg border bg-card p-2.5 md:p-3">
           <Calendar className="size-4 shrink-0 text-primary" />
           <div>
-            <p className="font-medium">{formatFullDate(match.matchDate, locale)}</p>
+            <p className="font-medium">
+              {formatFullDate(match.matchDate, locale)}
+            </p>
           </div>
         </div>
         {/* Time */}
@@ -293,7 +317,9 @@ function MatchContent({
         <div className="flex items-center gap-2 rounded-lg border bg-card p-2.5 md:p-3">
           <Users className="size-4 shrink-0 text-primary" />
           <div>
-            <p className="font-medium">{formatCapacity(match.stadium.capacity, locale)} personas</p>
+            <p className="font-medium">
+              {formatCapacity(match.stadium.capacity, locale)} personas
+            </p>
           </div>
         </div>
       </div>
@@ -389,7 +415,8 @@ function MatchContent({
                   placeholder="-"
                   className="text-center text-base font-bold md:text-lg"
                   {...form.register("homeScore", {
-                    setValueAs: (v) => (v === "" || isNaN(v) ? undefined : Number(v)),
+                    setValueAs: (v) =>
+                      v === "" || isNaN(v) ? undefined : Number(v),
                   })}
                   aria-invalid={!!form.formState.errors.homeScore}
                 />
@@ -417,7 +444,8 @@ function MatchContent({
                   placeholder="-"
                   className="text-center text-base font-bold md:text-lg"
                   {...form.register("awayScore", {
-                    setValueAs: (v) => (v === "" || isNaN(v) ? undefined : Number(v)),
+                    setValueAs: (v) =>
+                      v === "" || isNaN(v) ? undefined : Number(v),
                   })}
                   aria-invalid={!!form.formState.errors.awayScore}
                 />
@@ -434,7 +462,8 @@ function MatchContent({
                   ⏱️ Tiempo Extra (empate en 90')
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Marcador total acumulado (incluye goles del tiempo regular + prórroga)
+                  Marcador total acumulado (incluye goles del tiempo regular +
+                  prórroga)
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -458,7 +487,8 @@ function MatchContent({
                     placeholder={`≥${homeScore}`}
                     className="text-center text-base font-bold md:text-lg"
                     {...form.register("homeScoreET", {
-                      setValueAs: (v) => (v === "" || isNaN(v) ? null : Number(v)),
+                      setValueAs: (v) =>
+                        v === "" || isNaN(v) ? null : Number(v),
                     })}
                     aria-invalid={!!form.formState.errors.homeScoreET}
                   />
@@ -489,7 +519,8 @@ function MatchContent({
                     placeholder={`≥${awayScore}`}
                     className="text-center text-base font-bold md:text-lg"
                     {...form.register("awayScoreET", {
-                      setValueAs: (v) => (v === "" || isNaN(v) ? null : Number(v)),
+                      setValueAs: (v) =>
+                        v === "" || isNaN(v) ? null : Number(v),
                     })}
                     aria-invalid={!!form.formState.errors.awayScoreET}
                   />
@@ -552,13 +583,15 @@ function MatchContent({
           type="submit"
           className="w-full"
           size="lg"
-          disabled={isFormIncomplete() || form.formState.isSubmitting || isSaving}
+          disabled={
+            isFormIncomplete() || form.formState.isSubmitting || isSaving
+          }
         >
           {form.formState.isSubmitting || isSaving
             ? "Guardando..."
             : userPrediction && userPrediction.id
-              ? "Actualizar Predicción"
-              : "Guardar Predicción"}
+            ? "Actualizar Predicción"
+            : "Guardar Predicción"}
         </Button>
       </form>
     </div>
@@ -598,7 +631,7 @@ export function KnockoutMatchDialog({
   if (!isMobile) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
               <span>{getPhaseLabel()}</span>
@@ -624,7 +657,7 @@ export function KnockoutMatchDialog({
   // Mobile: Drawer
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="max-h-[95vh]">
+      <DrawerContent className="max-h-[95dvh]">
         <DrawerHeader className="text-left">
           <DrawerTitle className="flex items-center justify-between">
             <span>{getPhaseLabel()}</span>

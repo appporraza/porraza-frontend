@@ -333,8 +333,16 @@ export function KnockoutBracket({
 
   // Responsive dimensions for mobile optimization
   const [windowWidth, setWindowWidth] = useState(0);
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
+    // Detect iOS device
+    const checkIsIOS = () => {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    };
+    setIsIOS(checkIsIOS());
+
     // Initialize window width on mount
     const handleResize = () => {
       setWindowWidth(window.innerWidth);
@@ -554,6 +562,50 @@ export function KnockoutBracket({
     };
   }, [tournamentMatches]);
 
+  // iOS Safari: Apply hardware acceleration and rendering fixes to SVG after mount
+  useEffect(() => {
+    if (!isIOS) return;
+
+    const applyIOSFixes = () => {
+      // Target all SVG elements in the bracket
+      const svgElement = document.querySelector('.bracket svg');
+      if (svgElement && svgElement instanceof SVGElement) {
+        // Force hardware acceleration
+        svgElement.style.transform = 'translateZ(0)';
+        svgElement.style.webkitTransform = 'translateZ(0)';
+        svgElement.style.willChange = 'transform';
+
+        // Fix potential overflow issues
+        svgElement.style.overflow = 'visible';
+
+        // Apply to all paths (connectors)
+        const paths = svgElement.querySelectorAll('path');
+        paths.forEach((path) => {
+          path.style.transform = 'translateZ(0)';
+          path.style.webkitTransform = 'translateZ(0)';
+        });
+
+        // Apply to all foreignObject elements (match containers)
+        const foreignObjects = svgElement.querySelectorAll('foreignObject');
+        foreignObjects.forEach((fo) => {
+          fo.style.transform = 'translateZ(0)';
+          fo.style.webkitTransform = 'translateZ(0)';
+        });
+      }
+    };
+
+    // Apply fixes after bracket renders
+    const timer1 = setTimeout(applyIOSFixes, 50);
+    const timer2 = setTimeout(applyIOSFixes, 300);
+    const timer3 = setTimeout(applyIOSFixes, 1000);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
+  }, [tournamentMatches, isIOS]);
+
   return (
     <div className="space-y-6">
       {/* Header - Optimized for Mobile */}
@@ -584,8 +636,20 @@ export function KnockoutBracket({
           ← Desliza →
         </div>
 
-        <ScrollArea className="h-[500px] w-full max-w-full rounded-xl border-2 border-primary/20 bg-gradient-to-br from-card to-primary/5 shadow-lg shadow-primary/10 sm:h-[600px] md:h-[800px] md:via-background">
-          <div className="min-w-fit p-4 sm:p-6 md:p-8">
+        <ScrollArea
+          className={cn(
+            "h-[500px] w-full max-w-full rounded-xl border-2 border-primary/20 bg-gradient-to-br from-card to-primary/5 shadow-lg shadow-primary/10 sm:h-[600px] md:h-[800px] md:via-background",
+            "bracket" // iOS-specific styling target
+          )}
+        >
+          <div
+            className="min-w-fit p-4 sm:p-6 md:p-8"
+            style={{
+              // iOS Safari optimization: Force hardware acceleration
+              transform: isIOS ? 'translate3d(0, 0, 0)' : undefined,
+              WebkitTransform: isIOS ? 'translate3d(0, 0, 0)' : undefined,
+            }}
+          >
             <SingleEliminationBracket
               matches={tournamentMatches}
               matchComponent={CustomMatchWithPredictions}
