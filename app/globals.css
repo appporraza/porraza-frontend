@@ -404,6 +404,11 @@
       perspective: 1000px;
       backface-visibility: hidden;
       will-change: transform;
+      /* Critical: Force SVG to respect its intrinsic dimensions in iOS */
+      width: 100% !important;
+      height: auto !important;
+      min-height: 100% !important;
+      display: block !important;
     }
 
     /* Fix SVG path rendering issues in iOS */

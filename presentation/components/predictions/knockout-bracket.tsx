@@ -578,11 +578,32 @@ export function KnockoutBracket({
         // Fix potential overflow issues
         svgElement.style.overflow = 'visible';
 
+        // CRITICAL: Ensure SVG has explicit dimensions for iOS
+        const viewBox = svgElement.getAttribute('viewBox');
+        if (viewBox) {
+          const [, , width, height] = viewBox.split(' ').map(Number);
+          if (width && height) {
+            // Set explicit width/height attributes for iOS
+            svgElement.setAttribute('width', width.toString());
+            svgElement.setAttribute('height', height.toString());
+          }
+        }
+
+        // Force repaint in iOS Safari
+        svgElement.style.display = 'none';
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        void svgElement.getBoundingClientRect(); // Trigger reflow
+        svgElement.style.display = 'block';
+
         // Apply to all paths (connectors)
         const paths = svgElement.querySelectorAll('path');
         paths.forEach((path) => {
-          path.style.transform = 'translateZ(0)';
-          path.style.webkitTransform = 'translateZ(0)';
+          if (path instanceof SVGPathElement) {
+            path.style.transform = 'translateZ(0)';
+            path.style.webkitTransform = 'translateZ(0)';
+            // Force iOS to actually draw the path
+            path.setAttribute('vector-effect', 'non-scaling-stroke');
+          }
         });
 
         // Apply to all foreignObject elements (match containers)
@@ -591,18 +612,26 @@ export function KnockoutBracket({
           fo.style.transform = 'translateZ(0)';
           fo.style.webkitTransform = 'translateZ(0)';
         });
+
+        // Force all SVG groups to render
+        const groups = svgElement.querySelectorAll('g');
+        groups.forEach((g) => {
+          g.style.isolation = 'isolate';
+        });
       }
     };
 
-    // Apply fixes after bracket renders
+    // Apply fixes after bracket renders (multiple times to ensure iOS picks it up)
     const timer1 = setTimeout(applyIOSFixes, 50);
     const timer2 = setTimeout(applyIOSFixes, 300);
     const timer3 = setTimeout(applyIOSFixes, 1000);
+    const timer4 = setTimeout(applyIOSFixes, 2000);
 
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
+      clearTimeout(timer4);
     };
   }, [tournamentMatches, isIOS]);
 
